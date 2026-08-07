@@ -1,53 +1,49 @@
-// src/pages/accessControl/TravelerDetailsPage.jsx
 import React, { useState, lazy, Suspense } from "react";
-import { Box, Typography, Button, IconButton, Avatar, CircularProgress } from "@mui/material";
+import { Box, Typography, Button, IconButton, Avatar } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import BlockIcon from "@mui/icons-material/Block";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import { Tag } from "antd";
 
-// استيراد مكونات التبويبات
-import FinancialWalletTab from "./tabs/travelerrsTab/FinancialWalletTab";
-import UserBookingsTab from "./tabs/travelerrsTab/UserBookingsTab";
-import ActivityTimelineTab from "./tabs/travelerrsTab/ActivityTimelineTab";
-import DisputesTab from "./tabs/travelerrsTab/DisputesTab";
+// استدعاء المودالات
 import DeleteUserModal from "./action/deletAccount";
 import SuspendUserModal from "./action/suspend";
 
-// استدقاء المودالات بشكل ليزي (Lazy Loading)
+// استدعاء التبويبات المستقلة
+import VerificationDocumentsTab from "./tabs/guideTabs/VerificationDocumentsTab";
+import ToursTripsOfferedTab from "./tabs/guideTabs/ToursTripsOfferedTab"; // <--- تم إضافة استدعاء المكون هنا
+import EarningsPayoutsTab from "./tabs/guideTabs/EarningsPayoutsTab";
 
-const TravelerDetailsPage = ({ user, onBack }) => {
+
+const GuideDetailsPage = ({ guide, onBack }) => {
   const [activeTab, setActiveTab] = useState(0);
 
   // حالات فتح وإغلاق المودالات
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
   const [openSuspendModal, setOpenSuspendModal] = useState(false);
 
-  // استخدام بيانات اليوزر الممررة أو القيم الافتراضية
-  const userData = user || {
-    name: "Jane Cooper",
-    email: "useremail@tripooo.com",
-    status: "Active",
-    id: "TRP-9024-UX",
-    registrationDate: "Jan 12, 2026",
-    initials: "JC",
+  // استخدام بيانات المرشد الممررة أو القيم الافتراضية
+  const guideData = {
+    name: guide?.name || "Ralph Edwards",
+    email: guide?.email || "useremail@tripooo.com",
+    status: guide?.status || "Pending Review",
+    id: guide?.id || "TRP-9024-UX",
+    registrationDate: guide?.registrationDate || "Jan 12, 2026",
+    licenseNumber: guide?.licenseCode || "LIC-N-2026-880",
+    initials: guide?.initials || "RE",
   };
 
   const tabs = [
-    { label: "Financial & Wallet", component: <FinancialWalletTab /> },
-    { label: "User Bookings", component: <UserBookingsTab /> },
-    { label: "Activity Timeline", component: <ActivityTimelineTab /> },
-    { label: "Disputes", component: <DisputesTab /> },
-  ];
+    { label: "Verification Documents", component: <VerificationDocumentsTab guideName={guideData.name} /> },
+    { label: "Tours & Trips Offered", component: <ToursTripsOfferedTab /> },
+{ label: "Earnings & Payouts", component: <EarningsPayoutsTab /> }  ];
 
   const handleDeleteConfirm = () => {
-    // كود الحذف هنا
     setOpenDeleteModal(false);
   };
 
   const handleSuspendConfirm = () => {
-    // كود الحظر هنا
     setOpenSuspendModal(false);
   };
 
@@ -102,7 +98,7 @@ const TravelerDetailsPage = ({ user, onBack }) => {
               color: "#0F172A",
             }}
           >
-            Traveler Profile Management
+            Guide Profile Management
           </Typography>
         </Box>
 
@@ -180,7 +176,6 @@ const TravelerDetailsPage = ({ user, onBack }) => {
         <Box
           sx={{
             width: { xs: "100%", md: "332px" },
-            minHeight: "437px",
             backgroundColor: "#FFFFFF",
             borderRadius: "12px",
             border: "1px solid rgba(226, 232, 240, 1)",
@@ -202,7 +197,7 @@ const TravelerDetailsPage = ({ user, onBack }) => {
               mb: 2,
             }}
           >
-            {userData.initials}
+            {guideData.initials}
           </Avatar>
 
           <Typography
@@ -214,7 +209,7 @@ const TravelerDetailsPage = ({ user, onBack }) => {
               lineHeight: 1.2,
             }}
           >
-            {userData.name}
+            {guideData.name}
           </Typography>
 
           <Typography
@@ -227,13 +222,23 @@ const TravelerDetailsPage = ({ user, onBack }) => {
               textAlign: "center",
             }}
           >
-            {userData.email}
+            {guideData.email}
           </Typography>
 
           <Tag
             style={{
-              backgroundColor: "#DCFCE7",
-              color: "#16A34A",
+              backgroundColor:
+                guideData.status === "Active"
+                  ? "#DCFCE7"
+                  : guideData.status === "Suspended"
+                  ? "#FEE2E2"
+                  : "#FEF3C7",
+              color:
+                guideData.status === "Active"
+                  ? "#16A34A"
+                  : guideData.status === "Suspended"
+                  ? "#DC2626"
+                  : "#D97706",
               border: "none",
               borderRadius: "4px",
               padding: "4px 12px",
@@ -241,7 +246,7 @@ const TravelerDetailsPage = ({ user, onBack }) => {
               fontSize: "12px",
             }}
           >
-            {userData.status}
+            {guideData.status}
           </Tag>
 
           <Box
@@ -280,7 +285,7 @@ const TravelerDetailsPage = ({ user, onBack }) => {
                   mt: "2px",
                 }}
               >
-                {userData.id}
+                {guideData.id}
               </Typography>
             </Box>
 
@@ -303,7 +308,30 @@ const TravelerDetailsPage = ({ user, onBack }) => {
                   mt: "2px",
                 }}
               >
-                {userData.registrationDate}
+                {guideData.registrationDate}
+              </Typography>
+            </Box>
+
+            <Box>
+              <Typography
+                sx={{
+                  fontSize: "12px",
+                  color: "#64748B",
+                  fontWeight: 600,
+                  textTransform: "uppercase",
+                }}
+              >
+                LICENCE NUMBER
+              </Typography>
+              <Typography
+                sx={{
+                  fontSize: "14px",
+                  color: "#1E293B",
+                  fontWeight: 500,
+                  mt: "2px",
+                }}
+              >
+                {guideData.licenseNumber}
               </Typography>
             </Box>
 
@@ -384,14 +412,14 @@ const TravelerDetailsPage = ({ user, onBack }) => {
         </Box>
       </Box>
 
-      {/* استدعاء المودالات الكسولة داخل Suspense */}
+      {/* مودالات الحظر والحذف */}
       <Suspense fallback={null}>
         {openDeleteModal && (
           <DeleteUserModal
             open={openDeleteModal}
             onClose={() => setOpenDeleteModal(false)}
             onConfirm={handleDeleteConfirm}
-            userName={userData.name}
+            userName={guideData.name}
           />
         )}
 
@@ -400,7 +428,7 @@ const TravelerDetailsPage = ({ user, onBack }) => {
             open={openSuspendModal}
             onClose={() => setOpenSuspendModal(false)}
             onConfirm={handleSuspendConfirm}
-            userName={userData.name}
+            userName={guideData.name}
           />
         )}
       </Suspense>
@@ -408,4 +436,4 @@ const TravelerDetailsPage = ({ user, onBack }) => {
   );
 };
 
-export default TravelerDetailsPage;
+export default GuideDetailsPage;
