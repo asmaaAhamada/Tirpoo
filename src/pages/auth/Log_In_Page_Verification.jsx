@@ -1,40 +1,92 @@
-// src/LoginPage.jsx
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   Box,
   Typography,
   TextField,
   Button,
   Link,
-  CssBaseline
+  CssBaseline,
+  CircularProgress,
+  Alert,
 } from '@mui/material';
-import bgImage from '../../assets/image/loginimage/planeimage.jpg'; 
-import logoImage from '../../assets/image/logo/tirppoLogo.png'; 
+import { useDispatch, useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
+
+import bgImage from '../../assets/image/loginimage/planeimage.jpg';
+import logoImage from '../../assets/image/logo/tirppoLogo.png';
 import { colors } from '../../style/colors';
 
+import { Set_up_Google } from '../../back_end/slice/auth_managments/setup_google'; // اضبط المسار
+import { Verify_Code } from '../../back_end/slice/auth_managments/verify';       // اضبط المسار
+
 const Log_In_Page_Verification = () => {
-  // حالة لحفظ قيم الخانات الـ 5
-  const [otp, setOtp] = useState(['', '', '', '', '']);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  // 1. زيادة عدد الخانات إلى 6 أرقام كما هو معتمد في Google Authenticator
+  const [otp, setOtp] = useState(['', '', '', '', '', '']);
   const inputRefs = useRef([]);
 
-  // التبديل والتنقل التلقائي بين المربعات
+  // استدعاء البيانات من الـ Redux Slices
+  const { qrCodeUrl, isLoading: isQrLoading } = useSelector(
+    (state) => state.Set_up_Google || {}
+  );
+  const { isLoading: isVerifying, error: verifyError } = useSelector(
+    (state) => state.Verify_Code || {}
+  );
+
+  // جلب user_id المخزن من مرحلة الدخول السابقة (أو تحديده)
+  const userId = useSelector((state) => state.Log_in?.user_id) || 930;
+
+  // 2. طلب إعداد QR Code فور دخول الصفحة لمسح الكود مجدداً من الهاتف
+  useEffect(() => {
+    if (userId) {
+      dispatch(Set_up_Google({ user_id: userId }));
+    }
+  }, [dispatch, userId]);
+
+  // التحكم بالتنقل بين مربعات الإدخال
   const handleOtpChange = (index, value) => {
-    if (value.length > 1) return; // السماح برقم واحد فقط في كل مربع
+    if (value.length > 1) return;
     const newOtp = [...otp];
     newOtp[index] = value;
     setOtp(newOtp);
 
-    // الانتقال للمربع التالي تلقائياً
-    if (value !== '' && index < 4) {
+    // الانتقال للمربع التالي تلقائياً عند الكتابة
+    if (value !== '' && index < 5) {
       inputRefs.current[index + 1]?.focus();
     }
   };
 
   const handleKeyDown = (index, e) => {
-    // الرجوع للمربع السابق عند ضغط Backspace
+    // الرجوع للمربع السابق عند الضغط على Backspace
     if (e.key === 'Backspace' && !otp[index] && index > 0) {
       inputRefs.current[index - 1]?.focus();
     }
+  };
+
+  // 3. معالجة إرسال الرمز للباك إند
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const code = otp.join('');
+
+    if (code.length !== 6) return;
+
+    dispatch(
+      Verify_Code({
+        user_id: userId,
+        code: code,
+        method: 'totp',
+      })
+    )
+      .unwrap()
+      .then(() => {
+        // الانتقال للواجهة الرئيسية عند نجاح التحقق
+        navigate('/dashboard');
+      })
+      .catch((err) => {
+        console.error('فشل التحقق:', err);
+      });
   };
 
   return (
@@ -47,7 +99,6 @@ const Log_In_Page_Verification = () => {
         alignItems: 'center',
         justifyContent: 'center',
         overflowX: 'hidden',
-        
         backgroundImage: {
           xs: 'none',
           md: `linear-gradient(rgba(0, 52, 128, 0.5), rgba(0, 52, 128, 0.5)), url(${bgImage})`,
@@ -59,7 +110,6 @@ const Log_In_Page_Verification = () => {
     >
       <CssBaseline />
 
-      {/* الحاوية الخارجية المتجاوبة */}
       <Box
         sx={{
           width: '100%',
@@ -74,12 +124,11 @@ const Log_In_Page_Verification = () => {
           boxSizing: 'border-box',
         }}
       >
-        {/* البوكس الرئيسي المخصص للتحقق */}
         <Box
           sx={{
             width: '100%',
-maxWidth: { xs: '100%', sm: '480px' },     
-minHeight: {  sm: '300px' },        
+            maxWidth: { xs: '100%', sm: '480px' },
+            minHeight: { sm: '300px' },
             backgroundColor: colors.cardBg,
             borderRadius: '16px',
             padding: { xs: '24px 16px', sm: '48px 32px' },
@@ -89,15 +138,13 @@ minHeight: {  sm: '300px' },
             alignItems: 'center',
             boxShadow: '0px 10px 30px rgba(0, 0, 0, 0.15)',
             zIndex: 2,
-
-            // نزول لأسفل وزياحة بسيطة لليمين للشاشات الكبيرة
             transform: {
               xs: 'none',
               md: 'translate(20px, 40px)',
             },
           }}
         >
-          {/* البوكس الداخلي للوغو والعناوين */}
+          {/* اللوغو والعنوان */}
           <Box
             sx={{
               width: '100%',
@@ -109,16 +156,7 @@ minHeight: {  sm: '300px' },
               marginBottom: '24px',
             }}
           >
-            {/* بوكس اللوغو */}
-            <Box
-              sx={{
-                width: '57px',
-                height: '60px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-            >
+            <Box sx={{ width: '57px', height: '60px' }}>
               <img
                 src={logoImage}
                 alt="Tripooo Logo"
@@ -126,7 +164,6 @@ minHeight: {  sm: '300px' },
               />
             </Box>
 
-            {/* النصوص والعناوين */}
             <Box sx={{ textAlign: 'center' }}>
               <Typography
                 sx={{
@@ -149,14 +186,36 @@ minHeight: {  sm: '300px' },
                   mx: 'auto',
                 }}
               >
-                We've sent a 6-digit verification code to your authenticator app or email.
+                Scan the QR code with Google Authenticator app, then enter the 6-digit code.
               </Typography>
             </Box>
           </Box>
 
-          {/* نموذج إدخال رمز التحقق */}
+          {/* 4. عرض الـ QR Code المجلوب لمسحه بالهاتف */}
+          <Box
+            sx={{
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              marginBottom: '20px',
+              minHeight: '130px',
+            }}
+          >
+            {isQrLoading ? (
+              <CircularProgress size={32} />
+            ) : qrCodeUrl ? (
+              <img
+                src={qrCodeUrl}
+                alt="Google 2FA QR Code"
+                style={{ width: '130px', height: '130px', borderRadius: '8px' }}
+              />
+            ) : null}
+          </Box>
+
+          {/* النموذج */}
           <Box
             component="form"
+            onSubmit={handleSubmit}
             autoComplete="off"
             sx={{
               width: '100%',
@@ -166,13 +225,13 @@ minHeight: {  sm: '300px' },
               gap: '24px',
             }}
           >
-            {/* 5 مربعات رمز التحقق (OTP) بحجم 48x48 مع شرطات زرقاء وغاب 27px */}
+            {/* 6 مربعات لإدخال الرمز */}
             <Box
               sx={{
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                gap: { xs: '8px', sm: '17px' }, // الـ Gap 27px تماماً كالمطلوب
+                gap: { xs: '4px', sm: '10px' },
                 width: '100%',
               }}
             >
@@ -193,11 +252,11 @@ minHeight: {  sm: '300px' },
                       },
                     }}
                     sx={{
-                      width: '48px',
+                      width: '42px',
                       height: '48px',
                       flexShrink: 0,
                       '& .MuiOutlinedInput-root': {
-                        width: '48px',
+                        width: '42px',
                         height: '48px',
                         borderRadius: '8px',
                         '& fieldset': {
@@ -214,7 +273,6 @@ minHeight: {  sm: '300px' },
                     }}
                   />
 
-                  {/* شرطة عمودية باللون الأزرق بين المربعات */}
                   {index < otp.length - 1 && (
                     <Box
                       sx={{
@@ -230,39 +288,21 @@ minHeight: {  sm: '300px' },
               ))}
             </Box>
 
-            {/* نص Resend Code */}
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-              <Typography
-                sx={{
-                  fontSize: '12px',
-                  color: colors.textSecondary,
-                  fontWeight: 400,
-                }}
-              >
-                Didn't receive the code?
-              </Typography>
-              <Link
-                underline="none"
-                href="#"
-                sx={{
-                  fontSize: '12px',
-                  color: '#0056b3',
-                  fontWeight: 600,
-                  cursor: 'pointer',
-                  '&:hover': {
-                    textDecoration: 'underline',
-                  },
-                }}
-              >
-                Resend Code.
-              </Link>
-            </Box>
+            {/* عرض أخطاء التحقق إن وجدت */}
+            {verifyError && (
+              <Alert severity="error" sx={{ width: '100%', fontSize: '12px' }}>
+                {typeof verifyError === 'string'
+                  ? verifyError
+                  : verifyError?.message || 'الرمز المدخل غير صحيح'}
+              </Alert>
+            )}
 
             {/* زر التأكيد */}
             <Button
               fullWidth
               type="submit"
               variant="contained"
+              disabled={otp.join('').length !== 6 || isVerifying}
               sx={{
                 height: '48px',
                 borderRadius: '8px',
@@ -278,23 +318,18 @@ minHeight: {  sm: '300px' },
                 },
               }}
             >
-              Sign In
+              {isVerifying ? <CircularProgress size={24} color="inherit" /> : 'Sign In'}
             </Button>
           </Box>
 
-          {/* الفوتر الأسفل */}
+          {/* الفوتر */}
           <Box sx={{ marginTop: 'auto', paddingTop: '20px', textAlign: 'center' }}>
             <Typography
               component="span"
-              sx={{
-                fontSize: '12px',
-                fontWeight: 400,
-                color: colors.textSecondary,
-              }}
+              sx={{ fontSize: '12px', fontWeight: 400, color: colors.textSecondary }}
             >
               © 2026 Tripooo. All rights reserved. ·{' '}
             </Typography>
-
             <Link
               href="#"
               sx={{
@@ -302,35 +337,9 @@ minHeight: {  sm: '300px' },
                 fontWeight: 600,
                 color: colors.primary,
                 textDecoration: 'underline',
-                textDecorationColor: colors.primary,
-                marginRight: '4px',
               }}
             >
               Privacy Policy
-            </Link>
-
-            <Typography
-              component="span"
-              sx={{
-                fontSize: '12px',
-                fontWeight: 400,
-                color: colors.textSecondary,
-              }}
-            >
-              ·{' '}
-            </Typography>
-
-            <Link
-              href="#"
-              sx={{
-                fontSize: '12px',
-                fontWeight: 400,
-                color: colors.primary,
-                textDecoration: 'underline',
-                textDecorationColor: colors.primary,
-              }}
-            >
-              Terms of Service
             </Link>
           </Box>
         </Box>

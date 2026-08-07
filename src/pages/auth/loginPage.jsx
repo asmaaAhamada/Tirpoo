@@ -8,8 +8,7 @@ import {
   InputAdornment,
   IconButton,
   Link,
-  CssBaseline,
-  Tooltip
+  CssBaseline
 } from '@mui/material';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
@@ -31,7 +30,7 @@ const LoginPage = () => {
 
   // جلب معلومات الحالة من Redux
   const { password, work_number } = useSelector((state) => state.Log_in.formInfo);
-  const { isLoading, error } = useSelector((state) => state.Log_in);
+  const { isLoading, error,message } = useSelector((state) => state.Log_in);
 
   // مسح الأخطاء السابقة عند فتح الصفحة
   useEffect(() => {
@@ -60,19 +59,16 @@ const LoginPage = () => {
       });
   };
 
-  // التحقق المحلي من صحة الإيميل
-  const isEmailValid = work_number.includes('@gmail');
-
-  // التحقق من تعبئة كافة الحقول وصحة البريد لفك تعطيل الزر
-  const isFormValid = work_number.trim() !== '' && password.trim() !== '' && isEmailValid;
+  // التحقق من تعبئة كافة الحقول لفك تعطيل الزر
+  const isFormValid = work_number.trim() !== '' && password.trim() !== '';
 
   // استخراج الأخطاء الخاصة بالباك إند للحقول والخطأ العام
   const workNumberError = error?.errors?.work_number?.[0] || (error?.field === 'work_number' ? error.message : null);
   const passwordError = error?.errors?.password?.[0] || (error?.field === 'password' ? error.message : null);
   const generalError = typeof error === 'string' ? error : error?.message && !workNumberError && !passwordError ? error.message : null;
 
-  // حدد ما إذا كان يجب إظهار حواف الإيميل بلون أحمر (سواء من الباكيند أو لعدم احتوائه على @gmail)
-  const isWorkNumberInvalid = Boolean(workNumberError) || (work_number.length > 0 && !isEmailValid);
+  // حدد ما إذا كان يجب إظهار حواف الإيميل بلون أحمر (من الباكيند فقط)
+  const isWorkNumberInvalid = Boolean(workNumberError);
 
   return (
     <Box
@@ -200,44 +196,37 @@ const LoginPage = () => {
           >
             {/* Work Email / Number Field */}
             <Box sx={{ width: '100%' }}>
-              <Tooltip 
-                title={!isEmailValid ? "Email address must contain @gmail" : ""} 
-                placement="top" 
-                arrow
-                open={work_number.length > 0 && !isEmailValid}
-              >
-                <TextField
-                  fullWidth
-                  autoComplete="off"
-                  name="work_number"
-                  value={work_number}
-                  onChange={handleInputChange}
-                  placeholder="Work Email "
-                  variant="outlined"
-                  error={isWorkNumberInvalid}
-                  sx={{
-                    '& .MuiOutlinedInput-root': {
-                      height: '48px',
-                      borderRadius: '8px',
-                      fontSize: '12px',
-                      '& fieldset': {
-                        borderColor: isWorkNumberInvalid ? colors.error : colors.border,
-                        borderWidth: '1px',
-                      },
-                      '&:hover fieldset': {
-                        borderColor: isWorkNumberInvalid ? colors.error : colors.primary,
-                      },
-                      '&.Mui-focused fieldset': {
-                        borderColor: isWorkNumberInvalid ? colors.error : colors.primary,
-                      },
+              <TextField
+                fullWidth
+                autoComplete="off"
+                name="work_number"
+                value={work_number}
+                onChange={handleInputChange}
+                placeholder="Work Number "
+                variant="outlined"
+                error={isWorkNumberInvalid}
+                sx={{
+                  '& .MuiOutlinedInput-root': {
+                    height: '48px',
+                    borderRadius: '8px',
+                    fontSize: '12px',
+                    '& fieldset': {
+                      borderColor: isWorkNumberInvalid ? colors.error : colors.border,
+                      borderWidth: '1px',
                     },
-                    '& .MuiInputBase-input': {
-                      fontSize: '12px',
-                      padding: '12px 14px',
+                    '&:hover fieldset': {
+                      borderColor: isWorkNumberInvalid ? colors.error : colors.primary,
                     },
-                  }}
-                />
-              </Tooltip>
+                    '&.Mui-focused fieldset': {
+                      borderColor: isWorkNumberInvalid ? colors.error : colors.primary,
+                    },
+                  },
+                  '& .MuiInputBase-input': {
+                    fontSize: '12px',
+                    padding: '12px 14px',
+                  },
+                }}
+              />
               {workNumberError && (
                 <Typography
                   sx={{
@@ -336,17 +325,31 @@ const LoginPage = () => {
             </Box>
 
             {/* عرض الخطأ العام إن وجد */}
-            {generalError && (
-              <Typography
-                sx={{
-                  fontSize: '12px',
-                  color: colors.error,
-                  textAlign: 'center',
-                }}
-              >
-                {generalError}
-              </Typography>
-            )}
+           {message && (
+  <Typography
+    sx={{
+      fontSize: '13px',
+      color: colors.primary,
+      textAlign: 'center',
+      fontWeight: 500,
+    }}
+  >
+    {message}
+  </Typography>
+)}
+
+{/* عرض الخطأ العام إن وجد */}
+{generalError && (
+  <Typography
+    sx={{
+      fontSize: '12px',
+      color: colors.error,
+      textAlign: 'center',
+    }}
+  >
+    {generalError}
+  </Typography>
+)}
 
             {/* Submit Button */}
             <Button
