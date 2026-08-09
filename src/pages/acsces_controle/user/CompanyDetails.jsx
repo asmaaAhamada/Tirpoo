@@ -15,14 +15,6 @@ import VerificationDocsTab from "./tabs/compantTabs/VerificationDocsTab";
 const DeleteUserModal = lazy(() => import("./action/deletAccount"));
 const SuspendUserModal = lazy(() => import("./action/suspend"));
 
-// تحميل المودالات الجديدة باستخدام React.lazy
-// const ApprovePartnerModal = lazy(() => import("./action/ApprovePartnerModal"));
-// const RejectChangesModal = lazy(() => import("./action/RejectChangesModal"));
-
-// // تحميل التبويبات باستخدام React.lazy
-// const LegalProfileTab = lazy(() => import("./tabs/companyTabs/LegalProfileTab"));
-// const OfferedServicesTab = lazy(() => import("./tabs/companyTabs/OfferedServicesTab"));
-// const VerificationDocsTab = lazy(() => import("./tabs/companyTabs/VerificationDocsTab"));
 
 const CompanyDetails = ({ company, onBack }) => {
   const [activeTab, setActiveTab] = useState(0);

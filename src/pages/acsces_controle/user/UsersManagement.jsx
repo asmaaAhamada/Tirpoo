@@ -8,13 +8,17 @@ import GuidesTable from "./mainTableUser/GuidesTable";
 import CompaniesTable from "./mainTableUser/CompaniesTable";
 import AdminUsersTable from "./mainTableUser/AdminUsersTable";
 
-
 const UsersManagement = () => {
   const [activeTab, setActiveTab] = useState(0);
 
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("All Status");
   const [timeFilter, setTimeFilter] = useState("All Times");
+
+  const handleCreateAdmin = () => {
+    // فتح مودال إضافة أدمن جديد عند النقر
+    console.log("Open Create Admin Modal");
+  };
 
   const renderTabContent = () => {
     const filterProps = { searchQuery, statusFilter, timeFilter };
@@ -49,6 +53,8 @@ const UsersManagement = () => {
         onStatusChange={setStatusFilter}
         timeFilter={timeFilter}
         onTimeChange={setTimeFilter}
+        showCreateButton={activeTab === 3} // يظهر فقط عند التاب الأخيرة (Admin Users)
+        onCreateClick={handleCreateAdmin}
       />
 
       {renderTabContent()}
