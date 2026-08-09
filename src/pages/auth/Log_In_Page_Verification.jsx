@@ -7,86 +7,136 @@ import {
   Link,
   CssBaseline,
   CircularProgress,
+  Snackbar,
   Alert,
+  IconButton,
+  Tooltip,
 } from '@mui/material';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import RefreshIcon from '@mui/icons-material/Refresh';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
+import Cookies from 'universal-cookie';
 
 import bgImage from '../../assets/image/loginimage/planeimage.jpg';
 import logoImage from '../../assets/image/logo/tirppoLogo.png';
 import { colors } from '../../style/colors';
 
-import { Set_up_Google } from '../../back_end/slice/auth_managments/setup_google'; // اضبط المسار
-import { Verify_Code } from '../../back_end/slice/auth_managments/verify';       // اضبط المسار
+import { Set_up_Google } from '../../back_end/slice/auth_managments/setup_google';
+import { Verify_Code } from '../../back_end/slice/auth_managments/verify';
+import { Resend } from '../../back_end/slice/auth_managments/resend';
 
 const Log_In_Page_Verification = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const cookies = new Cookies();
 
-  // 1. زيادة عدد الخانات إلى 6 أرقام كما هو معتمد في Google Authenticator
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
+  const [successMessage, setSuccessMessage] = useState(false);
+  const [copied, setCopied] = useState(false);
   const inputRefs = useRef([]);
 
-  // استدعاء البيانات من الـ Redux Slices
-  const { qrCodeUrl, isLoading: isQrLoading } = useSelector(
+  // استخراج البيانات من Redux
+  const { qrCodeUrl, secret, isLoading: isQrLoading } = useSelector(
     (state) => state.Set_up_Google || {}
   );
   const { isLoading: isVerifying, error: verifyError } = useSelector(
     (state) => state.Verify_Code || {}
   );
+  const { isLoading: isResending } = useSelector(
+    (state) => state.Resend || {}
+  );
 
-  // جلب user_id المخزن من مرحلة الدخول السابقة (أو تحديده)
-  const userId = useSelector((state) => state.Log_in?.user_id) || 930;
+  const reduxUserId = useSelector((state) => state.Log_in?.userId);
+  const userId = reduxUserId || cookies.get('user_id');
 
-  // 2. طلب إعداد QR Code فور دخول الصفحة لمسح الكود مجدداً من الهاتف
+  // طلب الـ Setup مرة واحدة فقط إذا لم يكن الـ secret موجهاً سابقاً
   useEffect(() => {
-    if (userId) {
-      dispatch(Set_up_Google({ user_id: userId }));
+    if (userId && !secret) {
+      dispatch(Set_up_Google({ user_id: Number(userId) }));
     }
-  }, [dispatch, userId]);
+  }, [dispatch, userId, secret]);
 
-  // التحكم بالتنقل بين مربعات الإدخال
+  // دالة نسخ الـ Secret
+  const handleCopySecret = () => {
+    if (secret) {
+      navigator.clipboard.writeText(secret);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
+  };
+
+  // دالة إعادة توليد الـ Key يدوباً عند الحاجة فقط
+  const handleRegenerateKey = () => {
+    if (userId) {
+      dispatch(Set_up_Google({ user_id: Number(userId) }));
+    }
+  };
+
   const handleOtpChange = (index, value) => {
     if (value.length > 1) return;
     const newOtp = [...otp];
     newOtp[index] = value;
     setOtp(newOtp);
 
-    // الانتقال للمربع التالي تلقائياً عند الكتابة
     if (value !== '' && index < 5) {
       inputRefs.current[index + 1]?.focus();
     }
   };
 
   const handleKeyDown = (index, e) => {
-    // الرجوع للمربع السابق عند الضغط على Backspace
     if (e.key === 'Backspace' && !otp[index] && index > 0) {
       inputRefs.current[index - 1]?.focus();
     }
   };
 
-  // 3. معالجة إرسال الرمز للباك إند
+  const handlePaste = (e) => {
+    e.preventDefault();
+    const pastedData = e.clipboardData.getData('text').trim();
+    if (/^\d{6}$/.test(pastedData)) {
+      const digits = pastedData.split('');
+      setOtp(digits);
+      inputRefs.current[5]?.focus();
+    }
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
     const code = otp.join('');
 
-    if (code.length !== 6) return;
+    if (code.length !== 6 || !userId) return;
 
     dispatch(
       Verify_Code({
-        user_id: userId,
+        user_id: Number(userId),
         code: code,
         method: 'totp',
       })
     )
       .unwrap()
       .then(() => {
-        // الانتقال للواجهة الرئيسية عند نجاح التحقق
-        navigate('/dashboard');
+        setSuccessMessage(true);
+        setTimeout(() => {
+          navigate('/dashboard');
+        }, 1500);
       })
       .catch((err) => {
         console.error('فشل التحقق:', err);
       });
+  };
+
+  const handleResendCode = () => {
+    if (userId) {
+      dispatch(Resend({ user_id: Number(userId) }))
+        .unwrap()
+        .then((res) => {
+          console.log('Resend successful:', res);
+        })
+        .catch((err) => {
+          console.error('Resend failed:', err);
+        });
+    }
   };
 
   return (
@@ -110,6 +160,26 @@ const Log_In_Page_Verification = () => {
     >
       <CssBaseline />
 
+      <Snackbar
+        open={successMessage}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+      >
+        <Alert
+          icon={<CheckCircleIcon fontSize="inherit" />}
+          severity="success"
+          sx={{
+            width: '100%',
+            fontSize: '14px',
+            fontWeight: 600,
+            backgroundColor: '#4caf50',
+            color: '#fff',
+            '& .MuiAlert-icon': { color: '#fff' },
+          }}
+        >
+          Verification successful! Redirecting to dashboard...
+        </Alert>
+      </Snackbar>
+
       <Box
         sx={{
           width: '100%',
@@ -128,23 +198,19 @@ const Log_In_Page_Verification = () => {
           sx={{
             width: '100%',
             maxWidth: { xs: '100%', sm: '480px' },
-            minHeight: { sm: '300px' },
+            maxHeight: 'calc(100vh - 48px)',
+            overflowY: 'auto',
             backgroundColor: colors.cardBg,
             borderRadius: '16px',
-            padding: { xs: '24px 16px', sm: '48px 32px' },
+            padding: { xs: '20px 16px', sm: '32px 32px' },
             boxSizing: 'border-box',
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
             boxShadow: '0px 10px 30px rgba(0, 0, 0, 0.15)',
             zIndex: 2,
-            transform: {
-              xs: 'none',
-              md: 'translate(20px, 40px)',
-            },
           }}
         >
-          {/* اللوغو والعنوان */}
           <Box
             sx={{
               width: '100%',
@@ -152,11 +218,11 @@ const Log_In_Page_Verification = () => {
               flexDirection: 'column',
               alignItems: 'center',
               justifyContent: 'center',
-              gap: '16px',
-              marginBottom: '24px',
+              gap: '12px',
+              marginBottom: '16px',
             }}
           >
-            <Box sx={{ width: '57px', height: '60px' }}>
+            <Box sx={{ width: '50px', height: '53px' }}>
               <img
                 src={logoImage}
                 alt="Tripooo Logo"
@@ -181,38 +247,93 @@ const Log_In_Page_Verification = () => {
                   fontSize: '12px',
                   fontWeight: 400,
                   color: colors.textSecondary,
-                  marginTop: '8px',
+                  marginTop: '6px',
                   maxWidth: '360px',
                   mx: 'auto',
                 }}
               >
-                Scan the QR code with Google Authenticator app, then enter the 6-digit code.
+                Scan the QR code or enter the setup key into your authenticator app.
               </Typography>
             </Box>
           </Box>
 
-          {/* 4. عرض الـ QR Code المجلوب لمسحه بالهاتف */}
-          <Box
-            sx={{
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
-              marginBottom: '20px',
-              minHeight: '130px',
-            }}
-          >
-            {isQrLoading ? (
-              <CircularProgress size={32} />
-            ) : qrCodeUrl ? (
-              <img
-                src={qrCodeUrl}
-                alt="Google 2FA QR Code"
-                style={{ width: '130px', height: '130px', borderRadius: '8px' }}
-              />
-            ) : null}
-          </Box>
+          {/* عرض الـ QR Code */}
+          {(isQrLoading || qrCodeUrl) && (
+            <Box
+              sx={{
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                marginBottom: '12px',
+                height: '120px',
+                width: '120px',
+                flexShrink: 0,
+              }}
+            >
+              {isQrLoading ? (
+                <CircularProgress size={32} />
+              ) : (
+                <img
+                  src={qrCodeUrl}
+                  alt="Google 2FA QR Code"
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                    borderRadius: '8px',
+                    objectFit: 'contain',
+                  }}
+                />
+              )}
+            </Box>
+          )}
 
-          {/* النموذج */}
+          {/* عرض الـ Secret Key لربطه يدوياً عبر "Enter a setup key" */}
+          {secret && !isQrLoading && (
+            <Box
+              sx={{
+                width: '100%',
+                backgroundColor: 'rgba(0, 52, 128, 0.05)',
+                borderRadius: '8px',
+                padding: '8px 12px',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                marginBottom: '16px',
+                border: '1px dashed rgba(0, 52, 128, 0.3)',
+              }}
+            >
+              <Typography sx={{ fontSize: '11px', color: colors.textSecondary, fontWeight: 500 }}>
+                Setup Key (Enter manually in app):
+              </Typography>
+
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '4px' }}>
+                <Typography
+                  sx={{
+                    fontSize: '14px',
+                    fontWeight: 700,
+                    letterSpacing: '1px',
+                    color: colors.primary || '#003480',
+                    fontFamily: 'monospace',
+                  }}
+                >
+                  {secret}
+                </Typography>
+
+                <Tooltip title={copied ? 'Copied!' : 'Copy Key'}>
+                  <IconButton size="small" onClick={handleCopySecret} color="primary">
+                    <ContentCopyIcon fontSize="small" />
+                  </IconButton>
+                </Tooltip>
+
+                <Tooltip title="Generate New Key">
+                  <IconButton size="small" onClick={handleRegenerateKey} color="secondary">
+                    <RefreshIcon fontSize="small" />
+                  </IconButton>
+                </Tooltip>
+              </Box>
+            </Box>
+          )}
+
           <Box
             component="form"
             onSubmit={handleSubmit}
@@ -222,17 +343,17 @@ const Log_In_Page_Verification = () => {
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
-              gap: '24px',
+              gap: '20px',
             }}
           >
-            {/* 6 مربعات لإدخال الرمز */}
             <Box
               sx={{
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                gap: { xs: '4px', sm: '10px' },
+                gap: { xs: '4px', sm: '8px' },
                 width: '100%',
+                direction: 'ltr',
               }}
             >
               {otp.map((digit, index) => (
@@ -242,6 +363,7 @@ const Log_In_Page_Verification = () => {
                     value={digit}
                     onChange={(e) => handleOtpChange(index, e.target.value)}
                     onKeyDown={(e) => handleKeyDown(index, e)}
+                    onPaste={handlePaste}
                     inputProps={{
                       maxLength: 1,
                       style: {
@@ -249,6 +371,9 @@ const Log_In_Page_Verification = () => {
                         fontSize: '18px',
                         fontWeight: '600',
                         padding: 0,
+                        color: verifyError
+                          ? 'rgba(239, 68, 68, 1)'
+                          : 'inherit',
                       },
                     }}
                     sx={{
@@ -259,15 +384,24 @@ const Log_In_Page_Verification = () => {
                         width: '42px',
                         height: '48px',
                         borderRadius: '8px',
+                        backgroundColor: verifyError
+                          ? 'rgba(254, 226, 226, 1)'
+                          : 'transparent',
                         '& fieldset': {
-                          borderColor: colors.border,
+                          borderColor: verifyError
+                            ? 'rgba(239, 68, 68, 1)'
+                            : colors.border,
                           borderWidth: '1px',
                         },
                         '&:hover fieldset': {
-                          borderColor: colors.primary,
+                          borderColor: verifyError
+                            ? 'rgba(239, 68, 68, 1)'
+                            : colors.primary,
                         },
                         '&.Mui-focused fieldset': {
-                          borderColor: colors.primary,
+                          borderColor: verifyError
+                            ? 'rgba(239, 68, 68, 1)'
+                            : colors.primary,
                         },
                       },
                     }}
@@ -288,16 +422,50 @@ const Log_In_Page_Verification = () => {
               ))}
             </Box>
 
-            {/* عرض أخطاء التحقق إن وجدت */}
             {verifyError && (
-              <Alert severity="error" sx={{ width: '100%', fontSize: '12px' }}>
-                {typeof verifyError === 'string'
-                  ? verifyError
-                  : verifyError?.message || 'الرمز المدخل غير صحيح'}
-              </Alert>
+              <Typography
+                sx={{
+                  fontSize: '12px',
+                  color: 'rgba(239, 68, 68, 1)',
+                  fontWeight: 400,
+                  textAlign: 'center',
+                }}
+              >
+                That code isn't quite right. Please check your app and try again.
+              </Typography>
             )}
 
-            {/* زر التأكيد */}
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+              <Typography
+                sx={{
+                  fontSize: '12px',
+                  color: '#000000',
+                  fontWeight: 400,
+                }}
+              >
+                Didn't receive the code?
+              </Typography>
+              <Link
+                component="button"
+                type="button"
+                disabled={isResending}
+                onClick={handleResendCode}
+                sx={{
+                  fontSize: '12px',
+                  color: 'rgba(1, 75, 168, 1)',
+                  fontWeight: 600,
+                  textDecoration: 'none',
+                  cursor: isResending ? 'not-allowed' : 'pointer',
+                  opacity: isResending ? 0.6 : 1,
+                  '&:hover': {
+                    textDecoration: 'underline',
+                  },
+                }}
+              >
+                {isResending ? 'Sending...' : 'Resend Code.'}
+              </Link>
+            </Box>
+
             <Button
               fullWidth
               type="submit"
@@ -318,15 +486,22 @@ const Log_In_Page_Verification = () => {
                 },
               }}
             >
-              {isVerifying ? <CircularProgress size={24} color="inherit" /> : 'Sign In'}
+              {isVerifying ? (
+                <CircularProgress size={24} color="inherit" />
+              ) : (
+                'Sign In'
+              )}
             </Button>
           </Box>
 
-          {/* الفوتر */}
-          <Box sx={{ marginTop: 'auto', paddingTop: '20px', textAlign: 'center' }}>
+          <Box sx={{ marginTop: '20px', textAlign: 'center' }}>
             <Typography
               component="span"
-              sx={{ fontSize: '12px', fontWeight: 400, color: colors.textSecondary }}
+              sx={{
+                fontSize: '12px',
+                fontWeight: 400,
+                color: colors.textSecondary,
+              }}
             >
               © 2026 Tripooo. All rights reserved. ·{' '}
             </Typography>
