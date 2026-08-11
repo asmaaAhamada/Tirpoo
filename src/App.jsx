@@ -7,8 +7,8 @@ import Reset_Password_Page from './pages/auth/Reset_Password_Page'
 import Dashboard from './pages/homePage/Dashboard'
 import MainLayout from './layout/MainLayout'
 import UsersManagement from './pages/acsces_controle/user/UsersManagement'
-import AdminManagement from './pages/acsces_controle/AdminManagement'
 import RolesPermissions from './pages/acsces_controle/RolesPermissions'
+import AdminManagement from './pages/admin/AdminManagement'
 
 
 export default function App(){

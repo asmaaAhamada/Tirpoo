@@ -1,5 +1,5 @@
 // src/components/action/TableFiltersBar.jsx
-import React, { useState, lazy, Suspense } from "react";
+import React, { useState } from "react";
 import {
   Box,
   TextField,
@@ -13,14 +13,12 @@ import SearchIcon from "@mui/icons-material/Search";
 import AddIcon from "@mui/icons-material/Add";
 import CreateAdminModal from "./CreateAdminModal";
 
-// استيراد مكون المودال
-
 const TableFiltersBar = ({
-  searchQuery,
+  searchQuery = "",
   onSearchChange,
-  statusFilter,
+  statusFilter = "All Status", // إعطاء قيمة افتراضية تطابق أحد الـ MenuItems
   onStatusChange,
-  timeFilter,
+  timeFilter = "All Times",     // إعطاء قيمة افتراضية تطابق أحد الـ MenuItems
   onTimeChange,
   showCreateButton,
   onCreateClick,
@@ -50,7 +48,7 @@ const TableFiltersBar = ({
       {/* 1. حقل البحث */}
       <TextField
         value={searchQuery}
-        onChange={(e) => onSearchChange(e.target.value)}
+        onChange={(e) => onSearchChange && onSearchChange(e.target.value)}
         placeholder="Search admins by name, personal email, or staff ID..."
         size="small"
         sx={{
@@ -91,10 +89,12 @@ const TableFiltersBar = ({
           flexWrap: { xs: "wrap", sm: "nowrap" },
         }}
       >
-        <FormControl size="small" sx={{ flex: { xs: 1, sm: "none" }, minWidth: { xs: "100px", sm: 120 } }}>
+        {/* فلتر الأدوار Roles */}
+        <FormControl size="small" sx={{ flex: { xs: 1, sm: "none" }, minWidth: { xs: "120px", sm: 140 } }}>
           <Select
-            value={statusFilter}
-            onChange={(e) => onStatusChange(e.target.value)}
+            value={statusFilter || "All Status"}
+            onChange={(e) => onStatusChange && onStatusChange(e.target.value)}
+            displayEmpty
             sx={{
               height: { xs: "38px", sm: "44px" },
               backgroundColor: "#FFFFFF",
@@ -111,10 +111,12 @@ const TableFiltersBar = ({
           </Select>
         </FormControl>
 
-        <FormControl size="small" sx={{ flex: { xs: 1, sm: "none" }, minWidth: { xs: "100px", sm: 120 } }}>
+        {/* فلتر الحالة Status */}
+        <FormControl size="small" sx={{ flex: { xs: 1, sm: "none" }, minWidth: { xs: "120px", sm: 140 } }}>
           <Select
-            value={timeFilter}
-            onChange={(e) => onTimeChange(e.target.value)}
+            value={timeFilter || "All Times"}
+            onChange={(e) => onTimeChange && onTimeChange(e.target.value)}
+            displayEmpty
             sx={{
               height: { xs: "38px", sm: "44px" },
               backgroundColor: "#FFFFFF",

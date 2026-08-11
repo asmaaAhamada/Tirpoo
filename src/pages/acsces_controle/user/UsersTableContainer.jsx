@@ -6,6 +6,7 @@ import BlockOutlinedIcon from "@mui/icons-material/BlockOutlined";
 import DeleteOutlineOutlinedIcon from "@mui/icons-material/DeleteOutlineOutlined";
 import { Table, Tag } from "antd";
 import "antd/dist/reset.css";
+import trashIcon from "../../../assets/icon_SVG/trash.svg";
 
 import TravelerDetailsPage from "./TravelerDetailsPage";
 
@@ -120,19 +121,20 @@ const UsersTableContainer = ({ searchQuery, statusFilter, timeFilter }) => {
         <Box sx={{ display: "flex", alignItems: "center", justifyContent: "flex-end", gap: 0.5 }}>
           <Tooltip title="View Traveler Details">
             <IconButton size="small" onClick={() => setSelectedUser(record)} sx={{ color: "#64748B", "&:hover": { color: "#014BA8" } }}>
-              <VisibilityOutlinedIcon fontSize="small" />
+              <VisibilityOutlinedIcon sx={{fontSize:"20px"}} />
             </IconButton>
           </Tooltip>
 
           <Tooltip title="Suspend / Block User">
             <IconButton size="small" sx={{ color: "#64748B", "&:hover": { color: "#D97706" } }}>
-              <BlockOutlinedIcon fontSize="small" />
+              <BlockOutlinedIcon  sx={{fontSize:"20px"}} />
             </IconButton>
           </Tooltip>
 
           <Tooltip title="Delete User Profile">
             <IconButton size="small" sx={{ color: "#EF4444", "&:hover": { color: "#B91C1C" } }}>
-              <DeleteOutlineOutlinedIcon fontSize="small" />
+                 <img src={trashIcon} alt="Trash" width={20} height={20} />
+             
             </IconButton>
           </Tooltip>
         </Box>
