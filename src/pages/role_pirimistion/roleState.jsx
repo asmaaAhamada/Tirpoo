@@ -1,86 +1,86 @@
+// src/components/StateUserCard.jsx
 import React from "react";
 import { Box, Typography, Grid } from "@mui/material";
 
-import WorningSvg from "../../assets/icon_SVG/ph_seal-warning.svg";
-import iconSvg from "../../assets/icon_SVG/fluent_style-guide-24-regular.svg";
-import icon_Svg from "../../assets/icon_SVG/mynaui_building-one.svg";
-import icon_pepole_Svg from "../../assets/icon_SVG/ph_users-three-light.svg";
+// الأيقونات من Material-UI Icons
+import PeopleIcon from "@mui/icons-material/People";
+import DirectionsWalkIcon from "@mui/icons-material/DirectionsWalk";
+import BusinessIcon from "@mui/icons-material/Business";
+  import   crown from "../../assets/icon_SVG/prime_crown.svg";
+import AccessTimeIcon from '@mui/icons-material/AccessTime';
+import iconSvg from "../../assets/icon_SVG/ph_users-three-light.svg";
 import { colors } from "../../style/colors";
 
+
+
+// ألوان الكاردات الثلاثة الأولى
 const BLUE_BTN_BG = "rgba(1, 75, 168, 0.1)";
+const BLUE_ICON_COLOR = "rgba(1, 75, 168, 1)";
+
+// ألوان الكارد الرابع (Approvals Required)
 const AMBER_BTN_BG = "rgba(254, 226, 226, 1)";
 
+// بيانات الكاردات الاربعة
 const defaultStateUserData = [
   {
     id: 1,
     title: "Total Total Admin Users",
     value: "24,500",
-    icon: (
+icon: (
       <img 
-        src={icon_pepole_Svg} 
-        alt="Icon" 
+        src={crown} 
+        alt="Completed Bookings Icon" 
         style={{ width: "24px", height: "24px" }} 
       />
-    ),
-    iconBg: BLUE_BTN_BG,
+    ),      iconBg: BLUE_BTN_BG,
   },
   {
     id: 2,
     title: "Active Now",
     value: "1,240",
-    icon: (
+icon: (
       <img 
         src={iconSvg} 
-        alt="Icon" 
+        alt="Completed Bookings Icon" 
         style={{ width: "24px", height: "24px" }} 
       />
-    ),
-    iconBg: BLUE_BTN_BG,
+    ),      iconBg: BLUE_BTN_BG,
   },
   {
     id: 3,
     title: "Reset Pending",
     value: "350",
-    icon: (
-      <img 
-        src={icon_Svg} 
-        alt="Icon" 
-        style={{ width: "24px", height: "24px" }} 
-      />
-    ),
-    iconBg: BLUE_BTN_BG,
+ icon: (
+      
+        <AccessTimeIcon sx={{color:BLUE_ICON_COLOR}}/>
+       
+    ),    iconBg: BLUE_BTN_BG,
   },
-  {
-    id: 4,
-    title: "Suspended",
-    value: "12",
-    icon: (
-      <img 
-        src={WorningSvg} 
-        alt="Icon" 
-        style={{ width: "24px", height: "24px" }} 
-      />
-    ),
-    iconBg: AMBER_BTN_BG,
-  }
+
 ];
 
-const StateAdminCard = ({ statsData = defaultStateUserData }) => {
+const RoleStateCard = ({ statsData = defaultStateUserData }) => {
   return (
     <Box
       sx={{
-        width: "100%", // تم إزالة maxWidth والتوسيط ليأخذ العرض الكامل
+        width: "100%",
         my: 2,
-        boxSizing: "border-box",
       }}
     >
       <Grid container spacing={2}>
         {statsData.map((item) => (
-          <Grid item xs={12} sm={6} lg={3} key={item.id}>
+          <Grid 
+            item 
+            xs={12} 
+            sm={12} 
+            md="auto" // يتيح للـ Item أن يأخذ عرض محتواه الداخلي على اللابتوب
+            key={item.id}
+          >
             <Box
               sx={{
                 backgroundColor: colors.whiteCardBg || "#FFFFFF",
-                width: "100%",
+                // العرض 100% للموبايل والتابلت، و 364px للابتوب والشاشات الكبيرة
+                width: { xs: "100%", md: "364px" },
                 height: "100px",
                 borderRadius: "8px",
                 border: `1px solid ${colors.border || "rgba(226, 232, 240, 1)"}`,
@@ -152,4 +152,4 @@ const StateAdminCard = ({ statsData = defaultStateUserData }) => {
   );
 };
 
-export default StateAdminCard;
+export default RoleStateCard;

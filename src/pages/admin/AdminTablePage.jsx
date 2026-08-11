@@ -1,9 +1,8 @@
-// src/components/AdminTablePage.jsx
 import React, { useState } from "react";
 import { Table, Tag, Avatar, Space, Button, ConfigProvider } from "antd";
 import { EyeOutlined } from "@ant-design/icons";
 import NotInterestedOutlinedIcon from '@mui/icons-material/NotInterestedOutlined';
-import AdminDetailsPage from "./AdminDetailsPage"; // استيراد مباشر للحد من الـ Loading
+import AdminDetailsPage from "./AdminDetailsPage";
 import trashIcon from "../../assets/icon_SVG/trash.svg";
 
 const initialData = [
@@ -206,9 +205,7 @@ const AdminTablePage = () => {
     >
       <div
         style={{
-          width: "100%",
-          maxWidth: "1120px",
-          margin: "0 auto",
+          width: "100%", // تم التعديل إلى 100% وإلغاء maxWidth و margin: 0 auto
           backgroundColor: "#FFFFFF",
           borderRadius: "12px",
           border: "1px solid #E2E8F0",

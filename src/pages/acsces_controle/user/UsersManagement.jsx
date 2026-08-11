@@ -1,5 +1,5 @@
-// src/pages/accessControl/UsersManagement.jsx
 import React, { useState } from "react";
+import { Box } from "@mui/material";
 import StateUserCard from "./state_user";
 import UsersMasterDirectory from "./UsersMasterDirectory";
 import TableFiltersBar from "./action/TableFiltersBar";
@@ -16,7 +16,6 @@ const UsersManagement = () => {
   const [timeFilter, setTimeFilter] = useState("All Times");
 
   const handleCreateAdmin = () => {
-    // فتح مودال إضافة أدمن جديد عند النقر
     console.log("Open Create Admin Modal");
   };
 
@@ -38,7 +37,7 @@ const UsersManagement = () => {
   };
 
   return (
-    <>
+    <Box sx={{ width: "100%", boxSizing: "border-box" }}>
       <StateUserCard />
 
       <UsersMasterDirectory
@@ -53,12 +52,12 @@ const UsersManagement = () => {
         onStatusChange={setStatusFilter}
         timeFilter={timeFilter}
         onTimeChange={setTimeFilter}
-        showCreateButton={activeTab === 3} // يظهر فقط عند التاب الأخيرة (Admin Users)
+        showCreateButton={activeTab === 3}
         onCreateClick={handleCreateAdmin}
       />
 
       {renderTabContent()}
-    </>
+    </Box>
   );
 };
 

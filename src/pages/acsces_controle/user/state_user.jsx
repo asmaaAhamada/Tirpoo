@@ -1,11 +1,6 @@
-// src/components/StateUserCard.jsx
 import React from "react";
 import { Box, Typography, Grid } from "@mui/material";
 
-// الأيقونات من Material-UI Icons
-import PeopleIcon from "@mui/icons-material/People";
-import DirectionsWalkIcon from "@mui/icons-material/DirectionsWalk";
-import BusinessIcon from "@mui/icons-material/Business";
 import WorningSvg from "../../../assets/icon_SVG/ph_seal-warning.svg";
 import iconSvg from "../../../assets/icon_SVG/fluent_style-guide-24-regular.svg";
 import icon_Svg from "../../../assets/icon_SVG/mynaui_building-one.svg";
@@ -13,80 +8,74 @@ import icon_pepole_Svg from "../../../assets/icon_SVG/ph_users-three-light.svg";
 
 import { colors } from "../../../style/colors";
 
-
-// ألوان الكاردات الثلاثة الأولى
 const BLUE_BTN_BG = "rgba(1, 75, 168, 0.1)";
-const BLUE_ICON_COLOR = "rgba(1, 75, 168, 1)";
 
-// ألوان الكارد الرابع (Approvals Required)
 const AMBER_BTN_BG = "rgba(254, 243, 199, 1)";
-const AMBER_ICON_COLOR = "rgba(245, 158, 11, 1)";
 
-// بيانات الكاردات الاربعة
 const defaultStateUserData = [
   {
     id: 1,
     title: "Total Travelers",
     value: "24,500",
-icon: (
+    icon: (
       <img 
         src={icon_pepole_Svg} 
-        alt="Completed Bookings Icon" 
+        alt="Travelers Icon" 
         style={{ width: "24px", height: "24px" }} 
       />
-    ),      iconBg: BLUE_BTN_BG,
+    ),
+    iconBg: BLUE_BTN_BG,
   },
   {
     id: 2,
     title: "Active Guides",
     value: "1,240",
-icon: (
+    icon: (
       <img 
         src={iconSvg} 
-        alt="Completed Bookings Icon" 
+        alt="Guides Icon" 
         style={{ width: "24px", height: "24px" }} 
       />
-    ),      iconBg: BLUE_BTN_BG,
+    ),
+    iconBg: BLUE_BTN_BG,
   },
   {
     id: 3,
     title: "Verified Companies",
     value: "350",
- icon: (
+    icon: (
       <img 
         src={icon_Svg} 
-        alt="Completed Bookings Icon" 
+        alt="Companies Icon" 
         style={{ width: "24px", height: "24px" }} 
       />
-    ),    iconBg: BLUE_BTN_BG,
+    ),
+    iconBg: BLUE_BTN_BG,
   },
- {
-  id: 4,
-  title: "Approvals Required",
-  value: "12",
-  icon: (
-    <img 
-      src={WorningSvg} 
-      alt="Approvals Required Icon" 
-      style={{ 
-        width: "24px", 
-        height: "24px",
-        // هذا الفلتر يحول لون الـ SVG إلى درجة الأصفر/البرتقالي (Amber)
-        filter: "invert(64%) sepia(85%) saturate(1450%) hue-rotate(4deg) brightness(101%) contrast(93%)"
-      }} 
-    />
-  ),
-  iconBg: AMBER_BTN_BG,
-}
+  {
+    id: 4,
+    title: "Approvals Required",
+    value: "12",
+    icon: (
+      <img 
+        src={WorningSvg} 
+        alt="Approvals Required Icon" 
+        style={{ 
+          width: "24px", 
+          height: "24px",
+          filter: "invert(64%) sepia(85%) saturate(1450%) hue-rotate(4deg) brightness(101%) contrast(93%)"
+        }} 
+      />
+    ),
+    iconBg: AMBER_BTN_BG,
+  }
 ];
 
 const StateUserCard = ({ statsData = defaultStateUserData }) => {
   return (
     <Box
       sx={{
-        width: "100%",
-        maxWidth: "1120px",
-        mx: "auto",
+        width: "100%", // تم تعديل العرض لملء المساحة بالكامل بدون maxWidth أو mx: auto
         my: 2,
       }}
     >

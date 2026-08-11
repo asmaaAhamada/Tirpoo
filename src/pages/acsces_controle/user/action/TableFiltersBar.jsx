@@ -1,4 +1,3 @@
-// src/components/action/TableFiltersBar.jsx
 import React, { useState } from "react";
 import {
   Box,
@@ -16,9 +15,9 @@ import CreateAdminModal from "./CreateAdminModal";
 const TableFiltersBar = ({
   searchQuery = "",
   onSearchChange,
-  statusFilter = "All Status", // إعطاء قيمة افتراضية تطابق أحد الـ MenuItems
+  statusFilter = "All Status",
   onStatusChange,
-  timeFilter = "All Times",     // إعطاء قيمة افتراضية تطابق أحد الـ MenuItems
+  timeFilter = "All Times",
   onTimeChange,
   showCreateButton,
   onCreateClick,
@@ -33,9 +32,7 @@ const TableFiltersBar = ({
   return (
     <Box
       sx={{
-        width: "100%",
-        maxWidth: "1120px",
-        mx: "auto",
+        width: "100%", // تم التعديل ليكون العرض بالكامل
         mb: 2.5,
         display: "flex",
         flexDirection: { xs: "column", sm: "row" },

@@ -1,9 +1,7 @@
-// src/components/UsersTableContainer.jsx
 import React, { useState } from "react";
 import { Box, Tooltip, IconButton, Avatar, Typography } from "@mui/material";
 import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
 import BlockOutlinedIcon from "@mui/icons-material/BlockOutlined";
-import DeleteOutlineOutlinedIcon from "@mui/icons-material/DeleteOutlineOutlined";
 import { Table, Tag } from "antd";
 import "antd/dist/reset.css";
 import trashIcon from "../../../assets/icon_SVG/trash.svg";
@@ -133,8 +131,7 @@ const UsersTableContainer = ({ searchQuery, statusFilter, timeFilter }) => {
 
           <Tooltip title="Delete User Profile">
             <IconButton size="small" sx={{ color: "#EF4444", "&:hover": { color: "#B91C1C" } }}>
-                 <img src={trashIcon} alt="Trash" width={20} height={20} />
-             
+              <img src={trashIcon} alt="Trash" width={20} height={20} />
             </IconButton>
           </Tooltip>
         </Box>
@@ -147,7 +144,7 @@ const UsersTableContainer = ({ searchQuery, statusFilter, timeFilter }) => {
   }
 
   return (
-    <Box sx={{ width: "100%", maxWidth: "1120px", mx: "auto", boxSizing: "border-box" }}>
+    <Box sx={{ width: "100%", boxSizing: "border-box" }}>
       <Box
         sx={{
           backgroundColor: "#FFFFFF",

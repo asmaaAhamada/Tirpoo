@@ -17,7 +17,6 @@ import {
 } from '@mui/material';
 import {
   Dashboard as DashboardIcon,
-  Folder as FolderIcon,
   ExpandLess,
   ExpandMore,
   ChevronLeft,
@@ -28,6 +27,7 @@ import { colors } from '../style/colors';
 import logo from "../assets/image/logo/tirppoLogo.png";
 import { UserProfileSection } from '../pages/auth/UserProfileSection';
 import Groups2Icon from '@mui/icons-material/Groups2';
+
 const SidebarContent = ({ isCollapsed, setIsCollapsed, isMobile, onClose }) => {
   const location = useLocation();
   const [openAccessControl, setOpenAccessControl] = useState(true);
@@ -37,12 +37,12 @@ const SidebarContent = ({ isCollapsed, setIsCollapsed, isMobile, onClose }) => {
 
   const isActive = (path) => location.pathname === path;
 
-  // التحقق مما إذا كان مسار Access Control نشطاً (في حال كان في أي صفحة فرعية له)
+  // التحقق مما إذا كان مسار Access Control نشطاً
   const isAccessControlActive = 
     location.pathname.startsWith('/access-control') || 
     location.pathname === '/access-control';
 
-  // التأكد من أن صفحة Users Management تكون الأكتيف افتراضياً عند فتح Access Control
+  // التأكد من أن صفحة Users Management تكون الأكتيف افتراضياً
   const isUsersManagementActive = 
     isActive('/access-control/users') || location.pathname === '/access-control';
 
@@ -224,12 +224,12 @@ const SidebarContent = ({ isCollapsed, setIsCollapsed, isMobile, onClose }) => {
             </ListItemButton>
           </Tooltip>
 
-          {/* القائمة الفرعية لـ Access Control دون أيقونات فرعية */}
+          {/* القائمة الفرعية لـ Access Control */}
           {!collapsedState && (
             <Collapse in={openAccessControl} timeout="auto" unmountOnExit>
-              <List component="div" disablePadding sx={{ paddingLeft: '36px' }}>
+              <List component="div" disablePadding sx={{ paddingLeft: '20px' }}>
                 
-                {/* Users Management (Default Active) */}
+                {/* Users Management */}
                 <ListItemButton
                   component={Link}
                   to="/access-control/users"
@@ -239,6 +239,7 @@ const SidebarContent = ({ isCollapsed, setIsCollapsed, isMobile, onClose }) => {
                     borderRadius: '8px',
                     marginBottom: '4px',
                     paddingY: '6px',
+                    paddingX: '10px',
                     '&.Mui-selected': {
                       backgroundColor: 'rgba(0, 52, 128, 0.08)',
                       '&:hover': { backgroundColor: 'rgba(0, 52, 128, 0.12)' },
@@ -251,9 +252,10 @@ const SidebarContent = ({ isCollapsed, setIsCollapsed, isMobile, onClose }) => {
                   <ListItemText
                     primary="Users Management"
                     primaryTypographyProps={{
-                      fontSize: '13px',
+                      fontSize: '12px',
                       fontWeight: isUsersManagementActive ? 600 : 400,
                       color: isUsersManagementActive ? activeColor : colors.textPrimary,
+                      whiteSpace: 'nowrap',
                     }}
                   />
                 </ListItemButton>
@@ -268,6 +270,7 @@ const SidebarContent = ({ isCollapsed, setIsCollapsed, isMobile, onClose }) => {
                     borderRadius: '8px',
                     marginBottom: '4px',
                     paddingY: '6px',
+                    paddingX: '10px',
                     '&.Mui-selected': {
                       backgroundColor: 'rgba(0, 52, 128, 0.08)',
                       '&:hover': { backgroundColor: 'rgba(0, 52, 128, 0.12)' },
@@ -280,9 +283,10 @@ const SidebarContent = ({ isCollapsed, setIsCollapsed, isMobile, onClose }) => {
                   <ListItemText
                     primary="Admin Management"
                     primaryTypographyProps={{
-                      fontSize: '13px',
+                      fontSize: '12px',
                       fontWeight: isActive('/access-control/admins') ? 600 : 400,
                       color: isActive('/access-control/admins') ? activeColor : colors.textPrimary,
+                      whiteSpace: 'nowrap',
                     }}
                   />
                 </ListItemButton>
@@ -297,6 +301,7 @@ const SidebarContent = ({ isCollapsed, setIsCollapsed, isMobile, onClose }) => {
                     borderRadius: '8px',
                     marginBottom: '4px',
                     paddingY: '6px',
+                    paddingX: '10px',
                     '&.Mui-selected': {
                       backgroundColor: 'rgba(0, 52, 128, 0.08)',
                       '&:hover': { backgroundColor: 'rgba(0, 52, 128, 0.12)' },
@@ -309,9 +314,10 @@ const SidebarContent = ({ isCollapsed, setIsCollapsed, isMobile, onClose }) => {
                   <ListItemText
                     primary="Roles & Permissions"
                     primaryTypographyProps={{
-                      fontSize: '13px',
+                      fontSize: '12px',
                       fontWeight: isActive('/access-control/roles') ? 600 : 400,
                       color: isActive('/access-control/roles') ? activeColor : colors.textPrimary,
+                      whiteSpace: 'nowrap',
                     }}
                   />
                 </ListItemButton>

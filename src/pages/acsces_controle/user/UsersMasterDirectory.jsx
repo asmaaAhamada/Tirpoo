@@ -1,4 +1,3 @@
-// src/components/UsersMasterDirectory.jsx
 import React from "react";
 import { Box, Typography, Tabs, Tab } from "@mui/material";
 import ManageAccountsIcon from "@mui/icons-material/ManageAccounts";
@@ -20,8 +19,7 @@ const UsersMasterDirectory = ({ activeTab, onTabChange }) => {
   return (
     <Box
       sx={{
-        width: "100%",
-        maxWidth: "1120px",
+        width: "100%", // تم التعديل ليكون العرض بالكامل
         minHeight: { xs: "auto", md: "89px" },
         backgroundColor: "#FFFFFF",
         borderRadius: "12px",
@@ -31,9 +29,8 @@ const UsersMasterDirectory = ({ activeTab, onTabChange }) => {
         display: "flex",
         flexDirection: { xs: "column", md: "row" },
         alignItems: { xs: "stretch", md: "center" },
-        justifyContent: "space-between", // يدفع التابات إلى أقصى اليمين
+        justifyContent: "space-between",
         boxSizing: "border-box",
-        mx: "auto",
         my: 2,
         gap: { xs: 2, md: 3 },
       }}
@@ -84,7 +81,7 @@ const UsersMasterDirectory = ({ activeTab, onTabChange }) => {
         </Box>
       </Box>
 
-      {/* شريط التابات - يمين الصفحة */}
+      {/* شريط التابات */}
       <Box
         sx={{
           backgroundColor: "#F8FAFC",
@@ -93,7 +90,7 @@ const UsersMasterDirectory = ({ activeTab, onTabChange }) => {
           border: "1px solid #F1F5F9",
           maxWidth: "100%",
           overflow: "hidden",
-          marginLeft: { md: "auto" }, // ضمان الدفع نحو اليمين
+          marginLeft: { md: "auto" },
         }}
       >
         <Tabs
